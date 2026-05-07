@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Anchor"/>
+<title>Anchor</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#0a0a0a;color:#fff;font-family:'DM Sans',-apple-system,sans-serif}
+::-webkit-scrollbar{display:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:#fff}
+.screen{min-height:100vh;background:#0a0a0a}
+.sticky-header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06)}
+.header-inner{max-width:480px;margin:0 auto;padding:20px 20px 16px;display:flex;align-items:center;gap:14px}
+.back-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.screen-title{font-size:20px;font-weight:600;letter-spacing:-0.03em;line-height:1}
+.screen-sub{font-size:12px;color:rgba(255,255,255,0.35);margin-top:3px}
+.content{max-width:480px;margin:0 auto;padding:28px 20px 60px}
+.section{margin-bottom:28px}
+.section-label{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.section-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.section-title{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600}
+.section-items{border-left:1px solid rgba(255,255,255,0.06);margin-left:3px;padding-left:19px}
+.check-btn{display:flex;align-items:flex-start;gap:14px;width:100%;padding:13px 0;border-radius:8px;text-align:left;transition:background 0.2s}
+.check-btn:active{background:rgba(255,255,255,0.04)}
+.check-box{flex-shrink:0;width:22px;height:22px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all 0.2s}
+.check-box.checked{border:none}
+.check-label{font-size:15px;letter-spacing:-0.01em;line-height:1.45;color:rgba(255,255,255,0.85);transition:all 0.2s}
+.check-label.checked{color:rgba(255,255,255,0.3);text-decoration:line-through}
+.divider{height:1px;background:rgba(255,255,255,0.05);margin:8px 0 24px}
+.reset-note{font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:0.02em;line-height:1.6}
+.day-tabs{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:24px}
+.day-tab{display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:10px;transition:background 0.15s}
+.day-tab.active{background:rgba(255,255,255,0.1)}
+.day-tab-label{font-size:10px;letter-spacing:0.06em;font-weight:500;color:rgba(255,255,255,0.35);text-transform:uppercase}
+.day-tab.active .day-tab-label{color:#fff}
+.day-dot{width:5px;height:5px;border-radius:50%;background:transparent}
+.day-dot.today{background:rgba(255,255,255,0.4)}
+.day-tab.active .day-dot.today{background:#fff}
+/* Home */
+.home{min-height:100vh;background:#0a0a0a;display:flex;flex-direction:column}
+.home-inner{max-width:480px;margin:0 auto;width:100%;padding:52px 20px 40px;flex:1;display:flex;flex-direction:column}
+.home-title{font-size:32px;font-weight:600;letter-spacing:-0.04em;line-height:1;margin-bottom:36px}
+.home-date{font-size:13px;color:rgba(255,255,255,0.28);margin-top:6px;font-weight:400}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{border-radius:20px;padding:24px 18px 20px;display:flex;flex-direction:column;gap:28px;aspect-ratio:1/1;text-align:left;transition:opacity 0.15s}
+.card:active{opacity:0.6}
+.card-emoji{font-size:22px}
+.card-label{font-size:16px;font-weight:600;letter-spacing:-0.02em}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+var DAY_FULL = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+var SCHEDULE = {
+0:{label:“SWIM + GYM”,sub:“Chest / Back”,training:[“Swimming”,“Chest + Back”],food:[“Pre-swim — Greek yogurt + banana”,“School snack — protein bar + banana”,“School lunch — chicken bowl”,“Post-gym — 5 eggs + 2 bananas”,“Dinner — tuna (oil, plain) + 1 cup rice”]},
+1:{label:“GYM”,sub:“Legs”,training:[“Legs”],food:[“School snack — protein bar + banana”,“School lunch — chicken bowl”,“Post-gym — 5 eggs + 2 bananas”,“Dinner — tuna (oil, plain) + 1 cup rice”]},
+2:{label:“SWIM + GYM”,sub:“Arms”,training:[“Swimming”,“Arms”],food:[“Pre-swim — Greek yogurt + banana”,“School snack — protein bar + banana”,“School lunch — chicken bowl”,“Post-gym — 5 eggs + 2 bananas”,“Dinner — tuna (oil, plain) + 1 cup rice”]},
+3:{label:“GYM”,sub:“Chest / Back”,training:[“Chest + Back”],food:[“School snack — protein bar + banana”,“School lunch — chicken bowl”,“Post-gym — 5 eggs + 2 bananas”,“Dinner — tuna (oil, plain) + 1 cup rice”]},
+4:{label:“SWIM”,sub:“Recovery”,training:[“Swimming”],food:[“Pre-swim — Greek yogurt + banana”,“Breakfast — eggs”,“Lunch — chicken bowl + banana”,“Dinner — tuna (oil, plain) + 1 cup rice + banana”]},
+5:{label:“REST”,sub:“Recovery”,training:[“Rest day”],food:[“Breakfast — eggs”,“Lunch — grandma’s food”,“Dinner — tuna (oil, plain) + Greek yogurt”]},
+6:{label:“GYM”,sub:“Arms”,training:[“Arms”],food:[“School snack — protein bar + banana”,“School lunch — chicken bowl (chicken, rice, pico, avocado, cheese, honey mustard)”,“Post-gym — 5 eggs + 2 bananas”,“Dinner — tuna (oil, plain) + 1 cup rice”]},
+};
+
+var SUPP_AM  = [“Creatine — 5g”,“Omega-3 fish oil gummies”,“Vitamin D3”,“Vitamin C”];
+var SUPP_PM  = [“Magnesium”];
+var RECOVERY = [“15-min easy walk”,“5-min stretching — hips, shoulders, back”];
+var WATER    = [“Bottle 1”,“Bottle 2”,“Bottle 3”,“Bottle 4”,“Bottle 5”,“Bottle 6”];
+var BRAIN    = [“12 Ayas — Quran”,“Duolingo practice #1”,“Duolingo practice #2”,“SAT article”,“1 SAT vocab word”,“Speaking practice”];
+
+var CARDS = [
+{key:“brain”,       emoji:“🧠”, label:“Brain”,       color:”#c9b8ff”, bg:“rgba(201,184,255,0.07)”, border:“rgba(201,184,255,0.15)”},
+{key:“training”,    emoji:“🏋️”, label:“Training”,    color:”#a8e6cf”, bg:“rgba(168,230,207,0.07)”, border:“rgba(168,230,207,0.15)”},
+{key:“supplements”, emoji:“💊”, label:“Supplements”, color:”#d4a5f5”, bg:“rgba(212,165,245,0.07)”, border:“rgba(212,165,245,0.15)”},
+{key:“recovery”,    emoji:“🔄”, label:“Recovery”,    color:”#85d1f7”, bg:“rgba(133,209,247,0.07)”, border:“rgba(133,209,247,0.15)”},
+{key:“food”,        emoji:“🍽️”, label:“Food”,        color:”#ffd3b6”, bg:“rgba(255,211,182,0.07)”, border:“rgba(255,211,182,0.15)”},
+{key:“water”,       emoji:“💧”, label:“Water”,       color:”#67d4f7”, bg:“rgba(103,212,247,0.07)”, border:“rgba(103,212,247,0.15)”},
+];
+
+function todayStr() {
+var d = new Date();
+return d.getFullYear()+”-”+d.getMonth()+”-”+d.getDate();
+}
+function storageKey(section, extra, item) {
+return (“a-”+section+”-”+todayStr()+”-”+extra+”-”+item).replace(/\s+/g,”*”).replace(/[^a-zA-Z0-9*-]/g,””).slice(0,80);
+}
+function isChecked(key) { try { return localStorage.getItem(key)===“1”; } catch(e){ return false; } }
+function setCheck(key, val) { try { val ? localStorage.setItem(key,“1”) : localStorage.removeItem(key); } catch(e){} }
+
+function el(tag, attrs, children) {
+var e = document.createElement(tag);
+if (attrs) Object.keys(attrs).forEach(function(k) {
+if (k === “style” && typeof attrs[k] === “object”) {
+Object.assign(e.style, attrs[k]);
+} else if (k.startsWith(“on”)) {
+e.addEventListener(k.slice(2).toLowerCase(), attrs[k]);
+} else if (k === “className”) {
+e.className = attrs[k];
+} else {
+e[k] = attrs[k];
+}
+});
+if (children) {
+(Array.isArray(children) ? children : [children]).forEach(function(c) {
+if (c == null) return;
+e.appendChild(typeof c === “string” ? document.createTextNode(c) : c);
+});
+}
+return e;
+}
+
+function makeCheckItem(label, color, sKey) {
+var checked = isChecked(sKey);
+var box = el(“span”, {className: “check-box” + (checked ? “ checked” : “”), style:{background: checked ? color : “transparent”}});
+if (checked) box.innerHTML = ‘<svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>’;
+var lbl = el(“span”, {className: “check-label” + (checked ? “ checked” : “”)}, [label]);
+var btn = el(“button”, {className:“check-btn”, onclick: function() {
+checked = !checked;
+setCheck(sKey, checked);
+box.className = “check-box” + (checked ? “ checked” : “”);
+box.style.background = checked ? color : “transparent”;
+box.style.border = checked ? “none” : “1.5px solid rgba(255,255,255,0.2)”;
+box.innerHTML = checked ? ‘<svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>’ : “”;
+lbl.className = “check-label” + (checked ? “ checked” : “”);
+}}, [box, lbl]);
+return btn;
+}
+
+function makeSection(title, items, color, sKey, extra) {
+extra = extra || “”;
+var dot = el(“span”, {className:“section-dot”, style:{background:color}});
+var titleEl = el(“span”, {className:“section-title”, style:{color:color}}, [title]);
+var labelRow = el(“div”, {className:“section-label”}, [dot, titleEl]);
+var itemsEl = el(“div”, {className:“section-items”});
+items.forEach(function(item, i) {
+itemsEl.appendChild(makeCheckItem(item, color, storageKey(sKey, extra+i, item.slice(0,18))));
+});
+var sec = el(“div”, {className:“section”}, [labelRow, itemsEl]);
+return sec;
+}
+
+function makeBackBtn(onBack) {
+var btn = el(“button”, {className:“back-btn”, onclick:onBack});
+btn.innerHTML = ‘<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 13L5 8L10 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>’;
+return btn;
+}
+
+function makeShell(onBack, title, subtitle, buildContent) {
+var titleEl = el(“div”, {className:“screen-title”}, [title]);
+var headerText = el(“div”, null, [titleEl]);
+if (subtitle) headerText.appendChild(el(“div”, {className:“screen-sub”}, [subtitle]));
+var headerInner = el(“div”, {className:“header-inner”}, [makeBackBtn(onBack), headerText]);
+var header = el(“div”, {className:“sticky-header”}, [headerInner]);
+var content = el(“div”, {className:“content”});
+buildContent(content);
+content.appendChild(el(“div”, {className:“divider”}));
+content.appendChild(el(“div”, {className:“reset-note”}, [“Checks reset daily”]));
+return el(“div”, {className:“screen”}, [header, content]);
+}
+
+function makeDayTabs(activeDay, onChange) {
+var today = new Date().getDay();
+var container = el(“div”, {className:“day-tabs”});
+DAYS.forEach(function(d, i) {
+var lbl = el(“span”, {className:“day-tab-label”}, [d]);
+var dot = el(“span”, {className:“day-dot” + (i===today?” today”:””)});
+var tab = el(“button”, {className:“day-tab” + (i===activeDay?” active”:””), onclick:function() { onChange(i); }});
+tab.appendChild(lbl);
+tab.appendChild(dot);
+container.appendChild(tab);
+});
+return container;
+}
+
+// ── Screens ──────────────────────────────────────────────────────────────────
+function showBrain(onBack) {
+var sub = DAY_FULL[new Date().getDay()] + “ · Daily”;
+return makeShell(onBack, “Brain”, sub, function(c) {
+c.appendChild(makeSection(“Today’s Practice”, BRAIN, “#c9b8ff”, “brain”, “b”));
+});
+}
+
+function showTraining(onBack) {
+var today = new Date().getDay();
+var activeDay = today;
+var day = SCHEDULE[activeDay];
+var isRest = day.label === “REST”;
+var subEl = el(“div”, {className:“screen-sub”}, [DAY_FULL[activeDay]+” · “+day.label+(day.sub?” — “+day.sub:””)]);
+var titleEl = el(“div”, {className:“screen-title”}, [“Training”]);
+var headerText = el(“div”, null, [titleEl, subEl]);
+var headerInner = el(“div”, {className:“header-inner”}, [makeBackBtn(onBack), headerText]);
+var header = el(“div”, {className:“sticky-header”}, [headerInner]);
+var content = el(“div”, {className:“content”});
+
+function rebuild() {
+day = SCHEDULE[activeDay];
+isRest = day.label === “REST”;
+subEl.textContent = DAY_FULL[activeDay]+” · “+day.label+(day.sub?” — “+day.sub:””);
+content.innerHTML = “”;
+var tabs = makeDayTabs(activeDay, function(i) { activeDay = i; rebuild(); });
+content.appendChild(tabs);
+content.appendChild(makeSection(isRest?“Rest”:“Training”, day.training, “#a8e6cf”, “training”, “d”+activeDay+”-”));
+content.appendChild(el(“div”, {className:“divider”}));
+content.appendChild(el(“div”, {className:“reset-note”}, [“Checks reset daily”]));
+}
+rebuild();
+return el(“div”, {className:“screen”}, [header, content]);
+}
+
+function showSupplements(onBack) {
+return makeShell(onBack, “Supplements”, “Daily stack”, function(c) {
+c.appendChild(makeSection(“Morning”, SUPP_AM, “#d4a5f5”, “supp”, “am-”));
+c.appendChild(makeSection(“Night — 60–90 min before bed”, SUPP_PM, “#d4a5f5”, “supp”, “pm-”));
+});
+}
+
+function showRecovery(onBack) {
+return makeShell(onBack, “Recovery”, “Every day”, function(c) {
+c.appendChild(makeSection(“Everyday Recovery”, RECOVERY, “#85d1f7”, “recovery”, “r”));
+});
+}
+
+function showFood(onBack) {
+var today = new Date().getDay();
+var activeDay = today;
+var day = SCHEDULE[activeDay];
+var subEl = el(“div”, {className:“screen-sub”}, [DAY_FULL[activeDay]+” · “+day.label]);
+var titleEl = el(“div”, {className:“screen-title”}, [“Food”]);
+var headerText = el(“div”, null, [titleEl, subEl]);
+var headerInner = el(“div”, {className:“header-inner”}, [makeBackBtn(onBack), headerText]);
+var header = el(“div”, {className:“sticky-header”}, [headerInner]);
+var content = el(“div”, {className:“content”});
+
+function rebuild() {
+day = SCHEDULE[activeDay];
+subEl.textContent = DAY_FULL[activeDay]+” · “+day.label;
+content.innerHTML = “”;
+var tabs = makeDayTabs(activeDay, function(i) { activeDay = i; rebuild(); });
+content.appendChild(tabs);
+content.appendChild(makeSection(“Today’s Meals”, day.food, “#ffd3b6”, “food”, “d”+activeDay+”-”));
+content.appendChild(el(“div”, {className:“divider”}));
+content.appendChild(el(“div”, {className:“reset-note”}, [“Checks reset daily”]));
+}
+rebuild();
+return el(“div”, {className:“screen”}, [header, content]);
+}
+
+function showWater(onBack) {
+return makeShell(onBack, “Water”, “6 bottles daily”, function(c) {
+c.appendChild(makeSection(“Daily Water”, WATER, “#67d4f7”, “water”, “w”));
+});
+}
+
+var SCREEN_FNS = {brain:showBrain, training:showTraining, supplements:showSupplements, recovery:showRecovery, food:showFood, water:showWater};
+
+function render(screenEl) {
+var app = document.getElementById(“app”);
+app.innerHTML = “”;
+app.appendChild(screenEl);
+window.scrollTo(0,0);
+}
+
+function showHome() {
+var today = new Date();
+var dateStr = today.toLocaleDateString(“en-US”,{month:“long”,day:“numeric”});
+var titleEl = el(“div”, {className:“home-title”}, [“Anchor”, el(“div”, {className:“home-date”}, [DAY_FULL[today.getDay()]+” · “+dateStr])]);
+var grid = el(“div”, {className:“grid”});
+CARDS.forEach(function(card) {
+var emojiEl = el(“span”, {className:“card-emoji”}, [card.emoji]);
+var labelEl = el(“div”, {className:“card-label”, style:{color:card.color}}, [card.label]);
+var btn = el(“button”, {
+className:“card”,
+style:{background:card.bg, border:“1px solid “+card.border},
+onclick: function() {
+var fn = SCREEN_FNS[card.key];
+if (fn) render(fn(showHome));
+}
+}, [emojiEl, labelEl]);
+grid.appendChild(btn);
+});
+var inner = el(“div”, {className:“home-inner”}, [titleEl, grid]);
+render(el(“div”, {className:“home”}, [inner]));
+}
+
+showHome();
+</script>
+
+</body>
+</html>
